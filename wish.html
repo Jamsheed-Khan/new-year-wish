@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Check</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle at top, #1b1f3b, #0b0e1a);
+      color: #eaeaf0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .card {
+      width: 92%;
+      max-width: 420px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 24px 20px 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+      text-align: center;
+    }
+    h1 { margin: 0 0 10px; font-size: 22px; }
+    .sub { opacity: 0.85; font-size: 14px; margin-bottom: 18px; }
+    .loader { width: 100%; height: 10px; background: rgba(255,255,255,0.15); border-radius: 10px; overflow: hidden; margin: 18px 0 10px; }
+    .bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ff5f6d, #ffc371); transition: width 0.6s ease; }
+    .log { text-align: left; margin-top: 14px; font-size: 14px; line-height: 1.5; min-height: 96px; }
+    .log p { margin: 6px 0; opacity: 0; transform: translateY(6px); transition: all 0.4s ease; }
+    .log p.show { opacity: 1; transform: translateY(0); }
+    .popup { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 10; }
+    .popup .box { width: 90%; max-width: 360px; background: #200; border-radius: 14px; padding: 20px; text-align: center; }
+    .popup h2 { margin: 0 0 8px; font-size: 20px; color: #ff6b6b; }
+    .btn { padding: 10px 16px; border-radius: 10px; background: linear-gradient(90deg, #ff5f6d, #ffc371); color: #000; font-weight: 600; cursor: pointer; }
+    .reveal { display: none; margin-top: 10px; }
+    .fade { position: fixed; inset: 0; background: black; opacity: 0; pointer-events: none; transition: opacity 1.5s ease; z-index: 20; }
+    .fade.show { opacity: 1; }
+    canvas { position: fixed; inset: 0; pointer-events: none; z-index: 30; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>System Diagnostic</h1>
+    <div class="sub">Please wait while we complete the checks…</div>
+    <div class="loader"><div class="bar" id="bar"></div></div>
+    <div class="log" id="log"></div>
+    <div class="reveal" id="reveal">
+      <h3>🎉 Happy New Year! 🎉</h3>
+      <p>Relax 😄 This was just a fun New Year surprise.</p>
+      <p>Wishing you happiness, success, and great vibes all year long ✨</p>
+      <div class="footer">— Jamsheed Khan</div>
+    </div>
+  </div>
+
+  <div class="popup" id="popup">
+    <div class="box">
+      <h2>⚠️ Battery Low</h2>
+      <p>Device power critical ہو رہی ہے…</p>
+      <button class="btn" id="popupBtn">OK</button>
+    </div>
+  </div>
+
+  <div class="fade" id="fade"></div>
+  <canvas id="confetti"></canvas>
+
+  <script>
+    const bar = document.getElementById('bar');
+    const log = document.getElementById('log');
+    const popup = document.getElementById('popup');
+    const popupBtn = document.getElementById('popupBtn');
+    const reveal = document.getElementById('reveal');
+
+    const steps = [
+      'Initializing secure session…',
+      'System resources چیک ہو رہے ہیں…',
+      'Performance optimize کی جا رہی ہے…',
+      '⚡ Battery status monitor ہو رہا ہے…'
+    ];
+
+    let progress = 0;
+    let stepIndex = 0;
+
+    function addLog(text) {
+      const p = document.createElement('p');
+      p.textContent = text;
+      log.appendChild(p);
+      setTimeout(() => p.classList.add('show'), 50);
+    }
+
+    function runSteps() {
+      if (stepIndex < steps.length) {
+        progress += 20;
+        bar.style.width = progress + '%';
+        addLog(steps[stepIndex]);
+        stepIndex++;
+        setTimeout(runSteps, 1200);
+      } else {
+        bar.style.width = '80%';
+        setTimeout(() => popup.style.display = 'flex', 1000);
+      }
+    }
+
+    popupBtn.addEventListener('click', () => {
+      popup.style.display = 'none';
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      addLog('🔴 Battery critical… فون بند ہونے والا ہے');
+
+      setTimeout(() => {
+        addLog('❌ Device shutting down…');
+        document.getElementById('fade').classList.add('show');
+        bar.style.width = '100%';
+      }, 1200);
+
+      setTimeout(() => {
+        document.getElementById('fade').classList.remove('show');
+        reveal.style.display = 'block';
+        startConfetti();
+      }, 3200);
+    });
+
+    runSteps();
+
+    history.pushState(null, '', location.href);
+    let backPressTimer = null;
+    window.addEventListener('popstate', () => {
+      history.pushState(null, '', location.href);
+      if (!backPressTimer) {
+        addLog('⏪ Back دبائے رکھیں 4 seconds کے لیے…');
+        backPressTimer = setTimeout(() => history.back(), 4000);
+      }
+    });
+
+    function startConfetti() {
+      const canvas = document.getElementById('confetti');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const pieces = Array.from({ length: 120 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        r: Math.random() * 6 + 4,
+        s: Math.random() * 3 + 2
+      }));
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `hsl(${Math.random()*360},100%,60%)`;
+          ctx.fill();
+          p.y += p.s;
+          if (p.y > canvas.height) p.y = -10;
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+  </script>
+</body>
+</html>
