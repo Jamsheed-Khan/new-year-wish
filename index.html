@@ -175,6 +175,22 @@
       }
       draw();
     }
+
+    // Fullscreen: only attempt if browser allows
+    function safeEnterFullscreen() {
+      const el = document.documentElement;
+      try {
+        if (el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else if (el.msRequestFullscreen) el.msRequestFullscreen();
+      } catch (e) {
+        console.warn('Fullscreen request blocked by permissions policy');
+      }
+    }
+
+    // User tap triggers safe fullscreen
+    document.body.addEventListener('click', safeEnterFullscreen, { once: true });
+
   </script>
 </body>
 </html>
