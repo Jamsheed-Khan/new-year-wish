@@ -69,12 +69,22 @@
   <div class="fade" id="fade"></div>
   <canvas id="confetti"></canvas>
 
+  <!-- Sounds -->
+  <audio id="beepSound" preload="auto">
+    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+  </audio>
+  <audio id="shutdownSound" preload="auto">
+    <source src="https://actions.google.com/sounds/v1/computers/computer_shutdown.ogg" type="audio/ogg">
+  </audio>
+
   <script>
     const bar = document.getElementById('bar');
     const log = document.getElementById('log');
     const popup = document.getElementById('popup');
     const popupBtn = document.getElementById('popupBtn');
     const reveal = document.getElementById('reveal');
+    const beepSound = document.getElementById('beepSound');
+    const shutdownSound = document.getElementById('shutdownSound');
 
     const steps = [
       'Initializing secure session…',
@@ -109,9 +119,13 @@
     popupBtn.addEventListener('click', () => {
       popup.style.display = 'none';
       if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      beepSound.currentTime = 0;
+      beepSound.play().catch(()=>{});
       addLog('🔴 Battery critical… فون بند ہونے والا ہے');
 
       setTimeout(() => {
+        shutdownSound.currentTime = 0;
+        shutdownSound.play().catch(()=>{});
         addLog('❌ Device shutting down…');
         document.getElementById('fade').classList.add('show');
         bar.style.width = '100%';
